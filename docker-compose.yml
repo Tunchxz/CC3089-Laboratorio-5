@@ -1,0 +1,54 @@
+services:
+  db_source:
+    image: postgres:15-alpine
+    container_name: db_source_lab5
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_SOURCE}
+      POSTGRES_DB: laboratorio_5
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_source_data:/var/lib/postgresql/data
+      - ./db_source:/docker-entrypoint-initdb.d
+    networks:
+      - data_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d laboratorio_5"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db_dw:
+    image: postgres:15-alpine
+    container_name: db_dw_analytics
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_DW}
+      POSTGRES_DB: data_warehouse
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_dw_data:/var/lib/postgresql/data
+      - ./db_warehouse:/docker-entrypoint-initdb.d
+    networks:
+      - data_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d data_warehouse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_source_data:
+  db_dw_data:
+
+networks:
+  data_network:
+    driver: bridge
