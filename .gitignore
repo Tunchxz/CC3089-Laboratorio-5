@@ -1,2 +1,8 @@
 # Archivos de entorno de desarrollo
 .env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
